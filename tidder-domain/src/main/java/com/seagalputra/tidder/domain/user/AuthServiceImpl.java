@@ -2,6 +2,7 @@ package com.seagalputra.tidder.domain.user;
 
 import com.seagalputra.tidder.api.email.EmailService;
 import com.seagalputra.tidder.api.email.request.SendEmailRequest;
+import com.seagalputra.tidder.api.exception.SpringTidderException;
 import com.seagalputra.tidder.api.user.AuthService;
 import com.seagalputra.tidder.api.user.request.RegisterRequest;
 import com.seagalputra.tidder.domain.token.entity.VerificationToken;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -55,7 +57,21 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void verifyAccount(String token) {
+        VerificationToken verificationToken = verificationTokenRepository.findByToken(token)
+                .orElseThrow(() -> new SpringTidderException("Invalid Token!"));
 
+        fetchUserAndEnable(verificationToken);
+    }
+
+    private void fetchUserAndEnable(VerificationToken verificationToken) {
+        String username = verificationToken
+                .getUser()
+                .getUsername();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new SpringTidderException("User not found with name - " + username));
+        user.setEnabled(true);
+        userRepository.save(user);
     }
 
     private String generateVerificationToken(User user) {

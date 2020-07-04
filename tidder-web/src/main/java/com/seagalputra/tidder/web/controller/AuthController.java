@@ -4,9 +4,10 @@ import com.seagalputra.tidder.api.user.AuthService;
 import com.seagalputra.tidder.api.user.request.RegisterRequest;
 import com.seagalputra.tidder.api.web.GenericResponse;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -18,6 +19,12 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<GenericResponse> signup(@RequestBody RegisterRequest registerRequest) {
         authService.signup(registerRequest);
-        return new ResponseEntity<>(GenericResponse.SuccessResponse("User Registration Successful"), HttpStatus.OK);
+        return new ResponseEntity<>(GenericResponse.SuccessResponse("User Registration Successful"), OK);
+    }
+
+    @GetMapping("/accountVerification/{token}")
+    public ResponseEntity<GenericResponse> verifyAccount(@PathVariable String token) {
+        authService.verifyAccount(token);
+        return new ResponseEntity<>(GenericResponse.SuccessResponse("Account Activated Successfully"), OK);
     }
 }
