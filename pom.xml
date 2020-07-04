@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <modules>
-        <module>reddit-clone-api</module>
-        <module>reddit-clone-common</module>
-        <module>reddit-clone-domain</module>
-        <module>reddit-clone-monolith</module>
-        <module>reddit-clone-properties</module>
+        <module>tidder-api</module>
+        <module>tidder-common</module>
+        <module>tidder-domain</module>
+        <module>tidder-properties</module>
+        <module>tidder-web</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -17,9 +17,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.seagalputra</groupId>
-    <artifactId>reddit-clone</artifactId>
+    <artifactId>tidder</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>reddit-clone</name>
+    <name>tidder</name>
     <description>Reddit clone application</description>
 
     <properties>
