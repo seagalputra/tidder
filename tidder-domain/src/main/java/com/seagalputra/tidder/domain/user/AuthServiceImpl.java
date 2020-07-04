@@ -4,19 +4,23 @@ import com.seagalputra.tidder.api.email.EmailService;
 import com.seagalputra.tidder.api.email.request.SendEmailRequest;
 import com.seagalputra.tidder.api.exception.SpringTidderException;
 import com.seagalputra.tidder.api.user.AuthService;
+import com.seagalputra.tidder.api.user.request.LoginRequest;
 import com.seagalputra.tidder.api.user.request.RegisterRequest;
+import com.seagalputra.tidder.api.user.response.AuthenticationResponse;
 import com.seagalputra.tidder.domain.token.entity.VerificationToken;
 import com.seagalputra.tidder.domain.token.repository.VerificationTokenRepository;
 import com.seagalputra.tidder.domain.user.entity.User;
 import com.seagalputra.tidder.domain.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -27,6 +31,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final EmailService emailService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtProvider jwtProvider;
     
     @Override
     @Transactional
@@ -61,6 +67,22 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new SpringTidderException("Invalid Token!"));
 
         fetchUserAndEnable(verificationToken);
+    }
+
+    @Override
+    public AuthenticationResponse login(LoginRequest loginRequest) {
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+
+        Authentication authenticate = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        String token = jwtProvider.generateToken(authenticate);
+
+        return AuthenticationResponse.builder()
+                .username(loginRequest.getUsername())
+                .authenticationToken(token)
+                .build();
     }
 
     private void fetchUserAndEnable(VerificationToken verificationToken) {

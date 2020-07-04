@@ -1,6 +1,7 @@
 package com.seagalputra.tidder.web.controller;
 
 import com.seagalputra.tidder.api.user.AuthService;
+import com.seagalputra.tidder.api.user.request.LoginRequest;
 import com.seagalputra.tidder.api.user.request.RegisterRequest;
 import com.seagalputra.tidder.api.web.GenericResponse;
 import lombok.AllArgsConstructor;
@@ -26,5 +27,10 @@ public class AuthController {
     public ResponseEntity<GenericResponse> verifyAccount(@PathVariable String token) {
         authService.verifyAccount(token);
         return new ResponseEntity<>(GenericResponse.SuccessResponse("Account Activated Successfully"), OK);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<GenericResponse> login(@RequestBody LoginRequest loginRequest) {
+        return new ResponseEntity<>(GenericResponse.SuccessResponse(authService.login(loginRequest)), OK);
     }
 }
