@@ -5,11 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AuthenticationResponse {
+public class UserResponse {
+    private Long userId;
     private String username;
-    private String token;
+    private String email;
+    private Instant created;
+    private boolean enabled;
 }

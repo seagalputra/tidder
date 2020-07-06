@@ -7,6 +7,7 @@ import com.seagalputra.tidder.api.user.AuthService;
 import com.seagalputra.tidder.api.user.request.LoginRequest;
 import com.seagalputra.tidder.api.user.request.RegisterRequest;
 import com.seagalputra.tidder.api.user.response.AuthenticationResponse;
+import com.seagalputra.tidder.api.user.response.UserResponse;
 import com.seagalputra.tidder.domain.token.entity.VerificationToken;
 import com.seagalputra.tidder.domain.token.repository.VerificationTokenRepository;
 import com.seagalputra.tidder.domain.user.entity.User;
@@ -16,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,7 +83,24 @@ public class AuthServiceImpl implements AuthService {
 
         return AuthenticationResponse.builder()
                 .username(loginRequest.getUsername())
-                .authenticationToken(token)
+                .token(token)
+                .build();
+    }
+
+    @Override
+    public UserResponse getCurrentUser() {
+        org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
+        User user = userRepository.findByUsername(principal.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User name not found - " + principal.getUsername()));
+        return UserResponse.builder()
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .created(user.getCreated())
+                .enabled(user.isEnabled())
                 .build();
     }
 

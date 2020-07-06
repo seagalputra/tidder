@@ -8,4 +8,5 @@ import java.util.List;
 public interface SubredditService {
     SubredditResponse save(CreateSubredditRequest createSubredditRequest);
     List<SubredditResponse> getAll();
+    SubredditResponse getSubreddit(Long id);
 }

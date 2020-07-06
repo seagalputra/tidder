@@ -1,5 +1,6 @@
 package com.seagalputra.tidder.domain.subreddit;
 
+import com.seagalputra.tidder.api.exception.SpringTidderException;
 import com.seagalputra.tidder.api.subreddit.SubredditService;
 import com.seagalputra.tidder.api.subreddit.request.CreateSubredditRequest;
 import com.seagalputra.tidder.api.subreddit.response.SubredditResponse;
@@ -19,11 +20,12 @@ import java.util.stream.Collectors;
 public class SubredditServiceImpl implements SubredditService {
 
     private final SubredditRepository subredditRepository;
+    private final SubredditMapper subredditMapper;
 
     @Override
     @Transactional
     public SubredditResponse save(CreateSubredditRequest createSubredditRequest) {
-        Subreddit subreddit = mapToSubreddit(createSubredditRequest);
+        Subreddit subreddit = subredditMapper.mapToSubreddit(createSubredditRequest);
         Subreddit savedSubreddit = subredditRepository.save(subreddit);
         return SubredditResponse.builder()
                 .id(savedSubreddit.getId())
@@ -38,21 +40,14 @@ public class SubredditServiceImpl implements SubredditService {
     public List<SubredditResponse> getAll() {
         return subredditRepository.findAll()
                 .stream()
-                .map(this::mapToSubredditResponse)
+                .map(subredditMapper::mapToSubredditResponse)
                 .collect(Collectors.toList());
     }
 
-    private SubredditResponse mapToSubredditResponse(Subreddit subreddit) {
-        return SubredditResponse.builder()
-                .id(subreddit.getId())
-                .name(subreddit.getName())
-                .numberOfPosts(subreddit.getPosts().size())
-                .build();
-    }
-
-    private Subreddit mapToSubreddit(CreateSubredditRequest createSubredditRequest) {
-        return Subreddit.builder().name(createSubredditRequest.getName())
-                .description(createSubredditRequest.getDescription())
-                .build();
+    @Override
+    public SubredditResponse getSubreddit(Long id) {
+        Subreddit subreddit = subredditRepository.findById(id)
+                .orElseThrow(() -> new SpringTidderException("No subreddit found with id - " + id));
+        return subredditMapper.mapToSubredditResponse(subreddit);
     }
 }
