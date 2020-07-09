@@ -16,7 +16,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping
-    public ResponseEntity<GenericResponse> createPost(CreatePostRequest createPostRequest) {
+    public ResponseEntity<GenericResponse> createPost(@RequestBody CreatePostRequest createPostRequest) {
         postService.save(createPostRequest);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(GenericResponse.SuccessResponse("Post successfully created!"));
